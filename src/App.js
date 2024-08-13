@@ -18,138 +18,151 @@ import EditPropiedad from "./pages/EditPropiedad";
 import PropertyModelos from "./pages/PropertyModelos";
 import PropertyMultimedia from "./pages/PropertyMultimedia";
 import { AuthProvider } from "./components/AuthContext";
+import AccesRoute from "./components/AccesRoute";
+import PropiedadesAsesor from "./pages/PropiedadesAsesor";
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <LayoutPages>
-              <Home />
-            </LayoutPages>
-          }
-        />
-        <Route
-          path="/busqueda/:query"
-          element={
-            <LayoutPages>
-              <SearchPage />
-            </LayoutPages>
-          }
-        />
-        <Route
-          path="/propiedades/editar/:query"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <EditPropiedad />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/property/:propertyId/models"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <PropertyModelos />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/property/:propertyId/multimedia"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <PropertyMultimedia />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/proyectos/:query"
-          element={
-            <LayoutPages>
-              <ProyectosPage />
-            </LayoutPages>
-          }
-        />
-        <Route
-          path="/login"
-          element={
-            <AuthProvider>
-              <Login />
-            </AuthProvider>
-          }
-        />
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <LayoutPages>
+                <Home />
+              </LayoutPages>
+            }
+          />
+          <Route
+            path="/busqueda/:query"
+            element={
+              <LayoutPages>
+                <SearchPage />
+              </LayoutPages>
+            }
+          />
 
-        <Route
-          path="/dashboard"
-          element={
-            <AuthProvider>
+          <Route
+            path="/propiedades"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <AccesRoute
+                    path="/propiedades"
+                    roles={["admin", "asesor"]}
+                    components={{
+                      admin: Propiedades,
+                      asesor: PropiedadesAsesor,
+                    }}
+                  />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/propiedades/editar/:query"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <EditPropiedad />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/property/:propertyId/models"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <PropertyModelos />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/property/:propertyId/multimedia"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <PropertyMultimedia />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/proyectos/:query"
+            element={
+              <LayoutPages>
+                <ProyectosPage />
+              </LayoutPages>
+            }
+          />
+          <Route path="/login" element={<Login />} />
+
+          <Route
+            path="/dashboard"
+            element={
               <ProtectedRoute>
                 <Layout>
                   <Dashboard />
                 </Layout>
               </ProtectedRoute>
-            </AuthProvider>
-          }
-        />
-        <Route
+            }
+          />
+          {/* <Route
           path="/propiedades"
           element={
-            <AuthProvider>            
+            <AuthProvider>
             <ProtectedRoute>
-              <Layout>
-                <Propiedades />
-              </Layout>
+            <Layout>
+            <Propiedades />
+            </Layout>
             </ProtectedRoute>
             </AuthProvider>
-          }
-        />
-        <Route
-          path="/propiedades/nuevo"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <AddPropiedad />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/clientes"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Clientes />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/perfil"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Perfil />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/configuracion"
-          element={
-            <ProtectedRoute>
-              <Configuracion />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-    </Router>
+            }
+            /> */}
+          <Route
+            path="/propiedades/nuevo"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <AddPropiedad />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/clientes"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Clientes />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/perfil"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Perfil />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/configuracion"
+            element={
+              <ProtectedRoute>
+                <Configuracion />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 

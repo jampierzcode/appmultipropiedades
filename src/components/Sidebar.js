@@ -8,9 +8,10 @@ import {
   IoPeopleOutline,
   IoSettingsOutline,
 } from "react-icons/io5";
+import { useAuth } from "./AuthContext";
 
 const Sidebar = ({ open, setOpen }) => {
-  const session = JSON.parse(sessionStorage.getItem("session"));
+  const {user}=useAuth()
   const handlerSidebar = () => {
     setOpen(!open);
   };
@@ -64,8 +65,9 @@ const Sidebar = ({ open, setOpen }) => {
             alt=""
           />
           <div className={`${!open && "scale-0"}`}>
-            <h1 className="text-sm text-start">{session.nombres}</h1>
-            <h1 className="text-sm text-start">{session.email}</h1>
+            <h1 className="text-lg font-bold text-start">{user.nombres}</h1>
+            <h1 className="text-sm text-start">{user.email}</h1>
+            <span className="text-sm font-bold text-start">{user.rol === 1 ?"administrador": "asesor"}</span>
           </div>
         </div>
         <nav className="pt-2 flex flex-col gap-2">
