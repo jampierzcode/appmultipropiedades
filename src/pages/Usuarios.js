@@ -404,6 +404,7 @@ const Usuarios = () => {
               </td>
               <td>Nombres </td>
               <td>Email </td>
+              <td>Celular </td>
               <td>Documento </td>
               <td>Estado </td>
               <td className="ajustes-tabla-celda"></td>
@@ -440,6 +441,11 @@ const Usuarios = () => {
                     <td>
                       <div className="flex flex-col align-center">
                         {usuario.email}
+                      </div>
+                    </td>
+                    <td>
+                      <div className="flex flex-col align-center">
+                        {usuario.celular}
                       </div>
                     </td>
                     <td>
