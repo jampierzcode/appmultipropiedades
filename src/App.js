@@ -20,6 +20,7 @@ import PropertyMultimedia from "./pages/PropertyMultimedia";
 import { AuthProvider } from "./components/AuthContext";
 import AccesRoute from "./components/AccesRoute";
 import PropiedadesAsesor from "./pages/PropiedadesAsesor";
+import Usuarios from "./pages/Usuarios";
 
 function App() {
   return (
@@ -138,6 +139,16 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <Clientes />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/usuarios"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Usuarios />
                 </Layout>
               </ProtectedRoute>
             }

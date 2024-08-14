@@ -1,6 +1,7 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import LogoutButton from "./LogoutButton";
+import { FaUserCog } from "react-icons/fa";
 
 import { BsArrowLeftShort, BsArrowRightShort } from "react-icons/bs";
 import {
@@ -11,15 +12,21 @@ import {
 import { useAuth } from "./AuthContext";
 
 const Sidebar = ({ open, setOpen }) => {
-  const {user}=useAuth()
+  const { user } = useAuth();
   const handlerSidebar = () => {
     setOpen(!open);
   };
-  const menu = [
+  const menuAdmin = [
+    // { title: "Dashboard", url: "/dashboard", icon: <IoSpeedometerOutline /> },
+    { title: "Propiedades", url: "/propiedades", icon: <IoBusinessOutline /> },
+    { title: "Usuarios", url: "/usuarios", icon: <FaUserCog /> },
+    { title: "Clientes", url: "/clientes", icon: <IoPeopleOutline /> },
+    { title: "Configuracion", url: "/perfil", icon: <IoSettingsOutline /> },
+  ];
+  const menuAsesor = [
     // { title: "Dashboard", url: "/dashboard", icon: <IoSpeedometerOutline /> },
     { title: "Propiedades", url: "/propiedades", icon: <IoBusinessOutline /> },
     { title: "Clientes", url: "/clientes", icon: <IoPeopleOutline /> },
-    { title: "Configuracion", url: "/perfil", icon: <IoSettingsOutline /> },
   ];
   return (
     <div className="">
@@ -67,30 +74,60 @@ const Sidebar = ({ open, setOpen }) => {
           <div className={`${!open && "scale-0"}`}>
             <h1 className="text-lg font-bold text-start">{user.nombres}</h1>
             <h1 className="text-sm text-start">{user.email}</h1>
-            <span className="text-sm font-bold text-start">{user.rol === 1 ?"administrador": "asesor"}</span>
+            <span className="text-sm font-bold text-start">
+              {user.rol === 1
+                ? "superadministrador"
+                : user.rol === 2
+                ? "administrador"
+                : "asesor"}
+            </span>
           </div>
         </div>
-        <nav className="pt-2 flex flex-col gap-2">
-          {menu.map((item, index) => (
-            <NavLink
-              key={index}
-              to={item.url}
-              className={({ isActive }) =>
-                isActive
-                  ? "bg-light-purple text-dark-purple  text-sm p-2 flex gap-3 items-center rounded duration-300 transition-all"
-                  : "p-2 text-sm hover:bg-light-purple hover:text-dark-purple  transition-all rounded duration-300 flex gap-3 items-center"
-              }
-            >
-              <span className="block float-left text-xl">{item.icon}</span>
-              <span
-                className={`text-sm font-medium flex-1 ${!open && "hidden"}`}
+        {Number(user.rol) === 2 ? (
+          <nav className="pt-2 flex flex-col gap-2">
+            {menuAdmin.map((item, index) => (
+              <NavLink
+                key={index}
+                to={item.url}
+                className={({ isActive }) =>
+                  isActive
+                    ? "bg-light-purple text-dark-purple  text-sm p-2 flex gap-3 items-center rounded duration-300 transition-all"
+                    : "p-2 text-sm hover:bg-light-purple hover:text-dark-purple  transition-all rounded duration-300 flex gap-3 items-center"
+                }
               >
-                {item.title}
-              </span>
-            </NavLink>
-          ))}
-          <LogoutButton open={open} />
-        </nav>
+                <span className="block float-left text-xl">{item.icon}</span>
+                <span
+                  className={`text-sm font-medium flex-1 ${!open && "hidden"}`}
+                >
+                  {item.title}
+                </span>
+              </NavLink>
+            ))}
+            <LogoutButton open={open} />
+          </nav>
+        ) : (
+          <nav className="pt-2 flex flex-col gap-2">
+            {menuAsesor.map((item, index) => (
+              <NavLink
+                key={index}
+                to={item.url}
+                className={({ isActive }) =>
+                  isActive
+                    ? "bg-light-purple text-dark-purple  text-sm p-2 flex gap-3 items-center rounded duration-300 transition-all"
+                    : "p-2 text-sm hover:bg-light-purple hover:text-dark-purple  transition-all rounded duration-300 flex gap-3 items-center"
+                }
+              >
+                <span className="block float-left text-xl">{item.icon}</span>
+                <span
+                  className={`text-sm font-medium flex-1 ${!open && "hidden"}`}
+                >
+                  {item.title}
+                </span>
+              </NavLink>
+            ))}
+            <LogoutButton open={open} />
+          </nav>
+        )}
       </div>
       <div
         onClick={() => setOpen(false)}
