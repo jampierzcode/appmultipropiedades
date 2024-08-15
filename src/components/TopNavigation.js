@@ -1,6 +1,8 @@
 import dayjs from "dayjs";
 import React from "react";
 import { BsBellFill, BsJustifyRight } from "react-icons/bs";
+import { FaEye } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const TopNavigation = ({ open, setOpen }) => {
   const session = JSON.parse(sessionStorage.getItem("session"));
@@ -18,12 +20,19 @@ const TopNavigation = ({ open, setOpen }) => {
             </span>
           </div>
           <div className="hidden lg:flex justify-end self-start">
+            <Link
+              target="_blank"
+              to={"/"}
+              className="p-2 h-max rounded text-sm flex items-center gap-2 bg-dark-purple text-white whitespace-nowrap"
+            >
+              <FaEye /> Ver Sitio
+            </Link>
             <div className="self-center">
               <div className="cursor-pointer counter-icon relative">
-                <div className="rounded-full bg-green-600 w-5 h-5 text-center absolute -top-2 -right-2">
+                <div className="rounded-full bg-dark-purple text-white text-sm flex items-center justify-center w-5 h-5 text-center absolute -top-2 -right-2">
                   <span className="text-white text-xs">2</span>
                 </div>
-                <BsBellFill className="text-xl ml-2 active-bell" />
+                <BsBellFill className="text-xl ml-2 active-bell text-gray-400" />
               </div>
             </div>
             <div className="ml-3">

@@ -33,7 +33,7 @@ const Sidebar = ({ open, setOpen }) => {
       <div
         className={` z-20 h-screen bg-white shadow-lg text-light-font p-5 pt-8 ${
           open
-            ? "translate-x-0 md:translate-x-0 w-72 md:w-72"
+            ? "translate-x-0 md:translate-x-0 w-60 md:w-60"
             : "-translate-x-20 w-20 md:translate-x-0 md:block md:w-20"
         } duration-300 fixed md:relative block`}
       >
@@ -75,9 +75,9 @@ const Sidebar = ({ open, setOpen }) => {
             <h1 className="text-lg font-bold text-start">{user.nombres}</h1>
             <h1 className="text-sm text-start">{user.email}</h1>
             <span className="text-sm font-bold text-start">
-              {user.rol === 1
+              {Number(user.rol) === 1
                 ? "superadministrador"
-                : user.rol === 2
+                : Number(user.rol) === 2
                 ? "administrador"
                 : "asesor"}
             </span>

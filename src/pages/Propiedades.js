@@ -24,6 +24,7 @@ import {
 } from "react-icons/fa";
 import { BsViewList } from "react-icons/bs";
 import { FiImage } from "react-icons/fi";
+import EmpresaSelect from "../components/EmpresaSelect";
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 const Propiedades = () => {
@@ -47,6 +48,36 @@ const Propiedades = () => {
       ),
     },
   ];
+  //   business
+  const [business, setBusiness] = useState([]);
+  const [businessActive, setBusinessActive] = useState("Todas");
+  const buscarEmpresas = async () => {
+    try {
+      const response = await axios.get(
+        `${apiUrl}/businessbyuser/${session.id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${session.token}`,
+          },
+        }
+      );
+      let todas = { id: "Todas", nombre_razon: "Todas" };
+      //   setBusinessActive(response.data[0].id);
+      response.data.push(todas);
+      setBusinessActive(response.data[0].id);
+      setBusiness(response.data);
+    } catch (error) {
+      console.error("Error al obtener las empresas:", error);
+    }
+  };
+  const buscarEmpresaId = (id) => {
+    const search = business.find((b) => b.id === id);
+    return search.nombre_razon;
+  };
+  useEffect(() => {
+    // eslint-disable-next-line
+    buscarEmpresas();
+  }, [0]);
   const buscarPropiedades = async () => {
     try {
       const response = await axios.get(`${apiUrl}/propiedades`, {
@@ -273,6 +304,13 @@ const Propiedades = () => {
 
   return (
     <div className="w-full p-6 app-container-sections">
+      {/* <div className="w-full mb-4">
+        <EmpresaSelect
+          businessActive={businessActive}
+          setBusinessActive={setBusinessActive}
+          listBusiness={business}
+        />
+      </div> */}
       <div
         className="mb-[32px] flex items-center justify-between py-4 pr-4"
         style={{ background: "linear-gradient(90deg,#fff0,#fff)" }}
@@ -460,6 +498,7 @@ const Propiedades = () => {
               <td>Baños </td>
               <td>Garaje </td>
               <td>Precio </td>
+              <td>Empresa</td>
               <td>Logo</td>
               <td>Estado </td>
               <td className="ajustes-tabla-celda"></td>
@@ -527,6 +566,7 @@ const Propiedades = () => {
                         ? propiedad.precio_from
                         : null}
                     </td>
+                    <td>{buscarEmpresaId(propiedad.empresa_id)}</td>
                     <td>
                       <div
                         className="foto"
@@ -589,7 +629,7 @@ const Propiedades = () => {
                                         cancelText: "Cancelar",
                                       });
                                     }}
-                                    className="w-full pr-6 p-2 rounded flex items-center gap-2 text-sm text-red-500"
+                                    className="w-full rounded flex items-center gap-2 text-sm text-red-500"
                                   >
                                     <FaTrash /> Eliminar
                                   </button>

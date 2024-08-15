@@ -21,6 +21,10 @@ import { AuthProvider } from "./components/AuthContext";
 import AccesRoute from "./components/AccesRoute";
 import PropiedadesAsesor from "./pages/PropiedadesAsesor";
 import Usuarios from "./pages/Usuarios";
+import ProyectosAsesor from "./pages/ProyectosAsesor";
+import HomeAsesor from "./pages/HomeAsesor";
+import LayoutPagesAsesor from "./components/LayoutPagesAsesor";
+import NotFoundPage from "./pages/NotFoundPage";
 
 function App() {
   return (
@@ -99,6 +103,23 @@ function App() {
               </LayoutPages>
             }
           />
+          <Route
+            path="/asesor/:asesorId"
+            element={
+              <LayoutPagesAsesor>
+                <HomeAsesor />
+              </LayoutPagesAsesor>
+            }
+          />
+          <Route
+            path="/asesor/:asesorId/proyectos/:proyectoId"
+            element={
+              <LayoutPagesAsesor>
+                <ProyectosAsesor />
+              </LayoutPagesAsesor>
+            }
+          />
+          <Route path="*" element={<NotFoundPage />} />
           <Route path="/login" element={<Login />} />
 
           <Route

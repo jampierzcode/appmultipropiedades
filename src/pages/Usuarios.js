@@ -8,6 +8,7 @@ import {
   Modal,
   Select,
   Space,
+  Switch,
 } from "antd";
 import { MdAdd } from "react-icons/md";
 import { TbAdjustments, TbCaretDownFilled } from "react-icons/tb";
@@ -17,18 +18,34 @@ import axios from "axios";
 import dayjs from "dayjs";
 import {
   FaBuilding,
+  FaCopy,
   FaEdit,
   FaEllipsisV,
   FaEye,
+  FaEyeSlash,
+  FaLock,
+  FaRedo,
   FaTrash,
+  FaUpload,
   FaUserCog,
 } from "react-icons/fa";
 import { BsViewList } from "react-icons/bs";
 import { FiImage } from "react-icons/fi";
 import EmpresaSelect from "../components/EmpresaSelect";
+import { FaEyeLowVision } from "react-icons/fa6";
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 const Usuarios = () => {
+  const generateRandomPassword = (length) => {
+    const characters =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let password = "";
+    for (let i = 0; i < length; i++) {
+      const randomIndex = Math.floor(Math.random() * characters.length);
+      password += characters[randomIndex];
+    }
+    return password;
+  };
   const session = JSON.parse(sessionStorage.getItem("session"));
   const apiUrl = process.env.REACT_APP_API_URL;
 
@@ -36,8 +53,145 @@ const Usuarios = () => {
   const [business, setBusiness] = useState([]);
   const [businessActive, setBusinessActive] = useState("Todas");
   //   usuarios
+  const [loadingCreateUsuarios, setLoadingCreateUsuarios] = useState(false);
   const [usuarios, setUsuarios] = useState([]);
   const [filterUsuarios, setFilterUsuarios] = useState([]);
+  const [usuarioCreate, setUsuarioCreate] = useState({
+    empresa_id: "",
+    nombres: "",
+    celular: "",
+    documento: "",
+    email: "",
+    password: generateRandomPassword(10),
+    created_by: session.id,
+    fecha_created: "",
+    rol: 3,
+    status: "ACTIVO",
+  });
+  const [openPassword, setOpenPassword] = useState(false);
+  const [editGenerate, setEditGenerate] = useState(false);
+  // const changeGeneratePassword = () => {
+  //   setUsuarioCreate({
+  //     ...usuarioCreate,
+  //     password: generateRandomPassword(10),
+  //   });
+  // };
+  const copiarCredentials = (type) => {
+    let valor = usuarioCreate[type];
+    console.log(valor);
+    navigator.clipboard
+      .writeText(valor)
+      .then(() => {
+        message.success("¡Copiado!");
+      })
+      .catch((err) => {
+        console.error("Error al copiar al portapapeles: ", err);
+      });
+  };
+  useEffect(() => {
+    if (!editGenerate) {
+      let newPass = generateRandomPassword(10);
+      setUsuarioCreate({
+        ...usuarioCreate,
+        password: newPass,
+      });
+    }
+  }, [editGenerate]);
+
+  const [isModalOpenCreate, setIsModalOpenCreate] = useState(false);
+  const createUsuario = async (newUsuario) => {
+    return new Promise(async (resolve, reject) => {
+      const token = session.token;
+
+      try {
+        const response = await axios.post(`${apiUrl}/usuario`, newUsuario, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log(response);
+        const data = response.data;
+        resolve(data);
+      } catch (error) {
+        reject(error);
+        console.error("Upload error:", error);
+      }
+    });
+  };
+  const handleOkCreate = async () => {
+    if (
+      usuarioCreate.nombres !== "" &&
+      usuarioCreate.documento !== "" &&
+      usuarioCreate.celular !== "" &&
+      usuarioCreate.email !== "" &&
+      usuarioCreate.empresa_id !== "" &&
+      usuarioCreate.empresa_id !== "Todas" &&
+      usuarioCreate.password !== ""
+    ) {
+      setLoadingCreateUsuarios(true);
+      const newUsuario = { ...usuarioCreate };
+      let fechaNew = dayjs().format("YYYY-MM-DD HH:mm:ss");
+      newUsuario.fecha_created = fechaNew;
+      const userData = await createUsuario(newUsuario);
+      console.log(userData);
+      if (userData.message === "add") {
+        setUsuarioCreate({
+          empresa_id: businessActive,
+          nombres: "",
+          celular: "",
+          documento: "",
+          email: "",
+          created_by: session.id,
+          fecha_created: "",
+          rol: 3,
+          status: "ACTIVO",
+        });
+        setIsModalOpenCreate(false);
+        await buscarUsuarios();
+        setLoadingCreateUsuarios(false);
+      } else {
+        message.error(
+          "Ocurrio un error al crear el modelo, intentelo mas tarde"
+        );
+        setLoadingCreateUsuarios(false);
+      }
+    } else {
+      message.error("Ocurrio algo inesperado");
+      setLoadingCreateUsuarios(false);
+    }
+  };
+  const handleCancelCreate = () => {
+    setUsuarioCreate({
+      empresa_id: "",
+      nombres: "",
+      celular: "",
+      documento: "",
+      email: "",
+      created_by: session.id,
+      fecha_created: "",
+      rol: 3,
+      status: "ACTIVO",
+    });
+    setIsModalOpenCreate(false);
+  };
+  // funciones para crear nuevo modelo
+
+  const abrirModalCreate = (e) => {
+    e.stopPropagation();
+    setUsuarioCreate({
+      ...usuarioCreate,
+      password: generateRandomPassword(10),
+    });
+    setIsModalOpenCreate(true);
+  };
+  const handleUsuarioChangeCreate = (key, value) => {
+    setUsuarioCreate((prev) => {
+      const newModelo = { ...prev, [key]: value };
+
+      return newModelo;
+    });
+  };
 
   const items = [
     {
@@ -66,11 +220,18 @@ const Usuarios = () => {
       let todas = { id: "Todas", nombre_razon: "Todas" };
       //   setBusinessActive(response.data[0].id);
       response.data.push(todas);
+      setBusinessActive(response.data[0].id);
+      setUsuarioCreate({ ...usuarioCreate, empresa_id: response.data[0].id });
       console.log(response.data);
       setBusiness(response.data);
     } catch (error) {
       console.error("Error al obtener las empresas:", error);
     }
+  };
+  console.log(businessActive);
+  const buscarEmpresaId = (id) => {
+    const search = business.find((b) => b.id === id);
+    return search.nombre_razon;
   };
   useEffect(() => {
     // eslint-disable-next-line
@@ -170,7 +331,7 @@ const Usuarios = () => {
 
       setVisibleUsuarios(paginatedUsuarios);
     } else {
-      setSearchTerm(bol);
+      setSearchTerm("");
     }
   };
 
@@ -279,13 +440,13 @@ const Usuarios = () => {
 
   return (
     <div className="w-full p-6 app-container-sections">
-      <div className="w-full mb-4">
+      {/* <div className="w-full mb-4">
         <EmpresaSelect
           businessActive={businessActive}
           setBusinessActive={setBusinessActive}
           listBusiness={business}
         />
-      </div>
+      </div> */}
       <div
         className="mb-[32px] flex items-center justify-between py-4 pr-4"
         style={{ background: "linear-gradient(90deg,#fff0,#fff)" }}
@@ -332,14 +493,304 @@ const Usuarios = () => {
           >
             <TbAdjustments />
           </button>
-          <NavLink className="" to={"/propiedades/nuevo"}>
-            <button className="btn-new ml-[12px] h-[46px] flex gap-2 items-center">
-              <MdAdd className="text-white" />
-              <span className="mobile-hide">Nuevo Usuario</span>
-            </button>
-          </NavLink>
+          <button
+            onClick={(e) => abrirModalCreate(e)}
+            className="btn-new ml-[12px] h-[46px] flex gap-2 items-center"
+          >
+            <MdAdd className="text-white" />
+            <span className="mobile-hide">Nuevo Usuario</span>
+          </button>
         </div>
       </div>
+      {/* <Modal
+        footer={null}
+        title="Editar modelo"
+        open={isModalOpenModelo}
+        onCancel={handleCancelModelo}
+      >
+        {activeModelo !== null ? (
+          <div className="model grid grid-cols-1 md:grid-cols-4 gap-3 mt-4 relative">
+            <div className="md:col-span-1">
+              <label className="text-sm w-full block font-medium  mb-4 ">
+                Subir Imagen
+              </label>
+              <div className="w-full flex items-center gap-3">
+                <LogoUpload
+                  setLogoFile={setLogoFile}
+                  logo={activeModelo.imagenUrl}
+                  setLogo={(imagenUrl) =>
+                    setActiveModelo((prevState) => ({
+                      ...prevState,
+                      imagenUrl,
+                    }))
+                  }
+                />
+              </div>
+            </div>
+            <div>
+              <label className="text-sm w-full block font-medium mb-4 ">
+                Categoría
+              </label>
+              <select
+                className="bg-gray-100 rounded px-3 py-2 w-full text-sm"
+                value={activeModelo.categoria}
+                onChange={(e) => handleModelChange("categoria", e.target.value)}
+              >
+                {categorias.map((categoria, index) => (
+                  <option key={index} value={categoria}>
+                    {categoria}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="text-sm w-full block font-medium mb-4 ">
+                Nombre
+              </label>
+              <input
+                className="bg-gray-100 rounded px-3 py-2 w-full text-sm"
+                type="text"
+                value={activeModelo.nombre}
+                onChange={(e) => handleModelChange("nombre", e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="text-sm w-full block font-medium mb-4 ">
+                Etapa
+              </label>
+              <select
+                name=""
+                id="estado_modelo"
+                className="bg-gray-100 rounded px-3 py-2 w-full text-sm"
+                value={activeModelo.etapa}
+                onChange={(e) => handleModelChange("etapa", e.target.value)}
+              >
+                <option value="En planos">En planos</option>
+                <option value="Construccion">Construccion</option>
+                <option value="Entregado">Entregado</option>
+              </select>
+            </div>
+            <div className="col-span-2">
+              <label className="text-sm w-full block font-medium mb-4 ">
+                Precio Desde
+              </label>
+              <div className="w-full flex">
+                <select
+                  value={activeModelo.moneda}
+                  onChange={(e) => handleModelChange("moneda", e.target.value)}
+                  name=""
+                  className="bg-gray-100 rounded px-3 py-2 text-sm"
+                  id="moneda"
+                >
+                  <option value="PEN">S/</option>
+                  <option value="DOLLAR">$</option>
+                </select>
+                <input
+                  className="bg-gray-100 rounded px-3 py-2 w-full text-sm"
+                  type="number"
+                  value={activeModelo.precio}
+                  onChange={(e) => handleModelChange("precio", e.target.value)}
+                />
+              </div>
+            </div>
+            <div>
+              <label className="text-sm w-full block font-medium mb-4">
+                Área Desde
+              </label>
+              <input
+                className="bg-gray-100 rounded px-3 py-2 w-full text-sm"
+                type="text"
+                value={activeModelo.area}
+                onChange={(e) => handleModelChange("area", e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="text-sm w-full block font-medium mb-4">
+                N° Habitaciones
+              </label>
+              <input
+                className="bg-gray-100 rounded px-3 py-2 w-full text-sm"
+                type="text"
+                value={activeModelo.habs}
+                onChange={(e) => handleModelChange("habs", e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="text-sm w-full block font-medium mb-4">
+                Garage
+              </label>
+              <Switch
+                value={Number(activeModelo.garage) === 1 ? true : false}
+                onChange={(e) => handleModelChange("garage", e)}
+              />
+            </div>
+            <div>
+              <label className="text-sm w-full block font-medium mb-4">
+                Baños
+              </label>
+              <input
+                className="bg-gray-100 rounded px-3 py-2 w-full text-sm"
+                type="text"
+                value={activeModelo.banios}
+                onChange={(e) => handleModelChange("banios", e.target.value)}
+              />
+            </div>
+          </div>
+        ) : null}
+        <div className="flex items-center gap-4 justify-end">
+          <button
+            disabled={verificarCambios()}
+            onClick={handleCancelModelo}
+            className={`rounded-full text-[12px] px-5 py-2   ${
+              verificarCambios()
+                ? "text-gray-500 bg-gray-300"
+                : "text-bold-font bg-white border-gray-300 border"
+            }`}
+          >
+            Cancelar
+          </button>
+          <button
+            disabled={verificarCambios()}
+            onClick={handleSave}
+            className={`rounded-full text-[12px] px-5 py-2 ${
+              verificarCambios()
+                ? "text-gray-500 bg-gray-300"
+                : "text-white bg-dark-purple"
+            } `}
+          >
+            Actualizar
+          </button>
+        </div>
+      </Modal> */}
+      <Modal
+        footer={null}
+        title="Crear usuario"
+        open={isModalOpenCreate}
+        onOk={handleOkCreate}
+        onCancel={handleCancelCreate}
+      >
+        <div className="relative w-full">
+          {loadingCreateUsuarios ? (
+            <div className="bg-dark-purple z-50 text-white absolute top-0 left-0 right-0 bottom-0 w-full flex items-center justify-center">
+              Loading
+            </div>
+          ) : null}
+
+          <div className="model grid grid-cols-1 gap-3 mt-4 relative">
+            <div>
+              <label className="text-sm w-full block font-medium mb-4 ">
+                Nombres
+              </label>
+              <input
+                placeholder="Ingresa nombres completos"
+                className="bg-gray-100 rounded px-3 py-2 w-full text-sm"
+                type="text"
+                value={usuarioCreate?.nombres}
+                onChange={(e) =>
+                  handleUsuarioChangeCreate("nombres", e.target.value)
+                }
+              />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label className="text-sm w-full block font-medium mb-4 ">
+                  Documento
+                </label>
+                <input
+                  placeholder="Doc. 12345678"
+                  className="bg-gray-100 rounded px-3 py-2 w-full text-sm"
+                  type="text"
+                  value={usuarioCreate?.documento}
+                  onChange={(e) =>
+                    handleUsuarioChangeCreate("documento", e.target.value)
+                  }
+                />
+              </div>
+              <div>
+                <label className="text-sm w-full block font-medium mb-4 ">
+                  Celular
+                </label>
+                <input
+                  placeholder="# Celular/Whatsapp"
+                  className="bg-gray-100 rounded px-3 py-2 w-full text-sm"
+                  type="text"
+                  value={usuarioCreate?.celular}
+                  onChange={(e) =>
+                    handleUsuarioChangeCreate("celular", e.target.value)
+                  }
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label className="text-sm w-full block font-medium mb-4 ">
+                  Email {"(Username)"}
+                </label>
+                <div className="flex gap-1">
+                  <input
+                    placeholder="ejm: agente@gmail.com"
+                    className="bg-gray-100 rounded px-3 py-2 w-full text-sm"
+                    type="email"
+                    value={usuarioCreate?.email}
+                    onChange={(e) =>
+                      handleUsuarioChangeCreate("email", e.target.value)
+                    }
+                  />
+                  <button
+                    onClick={() => copiarCredentials("email")}
+                    className="p-2 bg-gray-100 rounded text-gray-500"
+                  >
+                    <FaCopy />
+                  </button>
+                </div>
+              </div>
+              <div>
+                <div className="text-sm w-full font-medium mb-4  flex items-center gap-2">
+                  <span>Password</span>{" "}
+                  <button
+                    onClick={() => setEditGenerate(!editGenerate)}
+                    className="p-1 rounded text-xs bg-dark-purple text-white"
+                  >
+                    {editGenerate ? <FaRedo /> : <FaEdit />}
+                  </button>
+                  {editGenerate ? "(Edit)" : "(Autogenerate)"}
+                </div>
+                <div className="flex gap-1">
+                  <input
+                    disabled={editGenerate ? false : true}
+                    className="bg-gray-100 rounded px-3 py-2 w-full text-sm"
+                    type={openPassword ? "text" : "password"}
+                    value={usuarioCreate?.password}
+                    onChange={(e) =>
+                      handleUsuarioChangeCreate("password", e.target.value)
+                    }
+                  />
+                  <button
+                    onClick={() => setOpenPassword(!openPassword)}
+                    className="p-2 bg-gray-100 rounded text-gray-500"
+                  >
+                    {openPassword ? <FaEyeSlash /> : <FaEye />}
+                  </button>
+                  <button
+                    onClick={() => copiarCredentials("password")}
+                    className="p-2 bg-gray-100 rounded text-gray-500"
+                  >
+                    <FaCopy />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-end mt-4">
+            <button
+              onClick={() => handleOkCreate()}
+              className="bg-dark-purple text-white p-3 rounded"
+            >
+              Crear Usuario
+            </button>
+          </div>
+        </div>
+      </Modal>
       <div
         className={`${
           activeFilter ? "" : "hidden"
@@ -355,20 +806,7 @@ const Usuarios = () => {
             placeholder={["Fecha Creación Desde", "Fecha Creación Hasta"]}
           />
         </div>
-        <div className="col-span-2">
-          <RangePicker
-            className="w-full text-sm"
-            value={filters.fechaEntregaRange}
-            onChange={(dates) => {
-              if (dates === null) {
-                handleFiltersChange({ fechaEntregaRange: [null, null] });
-              } else {
-                handleFiltersChange({ fechaEntregaRange: dates });
-              }
-            }}
-            placeholder={["Fecha Entrega Desde", "Fecha Entrega Hasta"]}
-          />
-        </div>
+
         <div className="w-full flex flex-col md:flex-row">
           <button
             className="p-3 rounded bg-white text-light-font text-xs"
@@ -402,10 +840,12 @@ const Usuarios = () => {
                   )}
                 />
               </td>
+              <td>Fecha Creacion </td>
               <td>Nombres </td>
               <td>Email </td>
               <td>Celular </td>
               <td>Documento </td>
+              <td>Empresa </td>
               <td>Estado </td>
               <td className="ajustes-tabla-celda"></td>
             </tr>
@@ -434,6 +874,13 @@ const Usuarios = () => {
                       />
                     </td>
                     <td>
+                      <div className="flex flex-col align-center font-bold text-bold-font">
+                        {dayjs(usuario.fecha_created)
+                          .locale("de")
+                          .format("DD [de] MMMM [del] YYYY")}
+                      </div>
+                    </td>
+                    <td>
                       <div className="flex flex-col align-center">
                         {usuario.nombres}
                       </div>
@@ -457,6 +904,15 @@ const Usuarios = () => {
                       <div style={{ textAlign: "center" }}>
                         <div>
                           <span className="estado publicado">
+                            {buscarEmpresaId(usuario.empresa_id)}
+                          </span>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div style={{ textAlign: "center" }}>
+                        <div>
+                          <span className="estado publicado">
                             {usuario.status}
                           </span>
                         </div>
@@ -471,13 +927,14 @@ const Usuarios = () => {
                             items: [
                               {
                                 label: (
-                                  <Link
-                                    target="_blank"
-                                    to={`/proyectos/${usuario.id}`}
-                                    className="pr-6 rounded flex items-center gap-2 text-sm text-gray-500"
+                                  <button
+                                    onClick={() => {
+                                      console.log("eliminar");
+                                    }}
+                                    className="w-full rounded flex items-center gap-2 text-sm"
                                   >
-                                    <FaEye /> Ver Propiedad
-                                  </Link>
+                                    <FaLock /> Cambiar Contraseña
+                                  </button>
                                 ),
                                 key: 0,
                               },
@@ -507,34 +964,12 @@ const Usuarios = () => {
                                         cancelText: "Cancelar",
                                       });
                                     }}
-                                    className="w-full pr-6 p-2 rounded flex items-center gap-2 text-sm text-red-500"
+                                    className="w-full rounded flex items-center gap-2 text-sm text-red-500"
                                   >
                                     <FaTrash /> Eliminar
                                   </button>
                                 ),
                                 key: 2,
-                              },
-                              {
-                                label: (
-                                  <Link
-                                    to={`/property/${usuario.id}/models`}
-                                    className="pr-6 rounded flex items-center gap-2 text-sm text-gray-500 "
-                                  >
-                                    <BsViewList /> Ver Modelos
-                                  </Link>
-                                ),
-                                key: 3,
-                              },
-                              {
-                                label: (
-                                  <Link
-                                    to={`/property/${usuario.id}/multimedia`}
-                                    className="pr-6 rounded flex items-center gap-2 text-sm text-gray-500 "
-                                  >
-                                    <FiImage /> Multimedia
-                                  </Link>
-                                ),
-                                key: 4,
                               },
                             ],
                           }}

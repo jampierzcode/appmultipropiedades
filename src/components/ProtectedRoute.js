@@ -8,6 +8,7 @@ const ProtectedRoute = ({ children }) => {
   const { user } = useAuth();
 
   if (!user) {
+    console.log(user);
     return <Navigate to="/login" />;
   }
 
