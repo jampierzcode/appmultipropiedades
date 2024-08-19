@@ -80,11 +80,14 @@ const Propiedades = () => {
   }, [0]);
   const buscarPropiedades = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/propiedades`, {
-        headers: {
-          Authorization: `Bearer ${session.token}`,
-        },
-      });
+      const response = await axios.get(
+        `${apiUrl}/propiedadesbyuser/${session.id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${session.token}`,
+          },
+        }
+      );
       setPropiedades(response.data);
       setFilterPropiedades(response.data);
     } catch (error) {
@@ -94,7 +97,7 @@ const Propiedades = () => {
   useEffect(() => {
     // eslint-disable-next-line
     buscarPropiedades();
-  }, [0]);
+  }, [session.id]);
   // ESTADOS PARA LA TABLA DINAMICA
   const [selectsProperties, setSelectsProperties] = useState([]);
   const [itemsPerPage, setItemsPerPage] = useState(10); //items por pagina

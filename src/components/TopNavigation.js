@@ -3,8 +3,10 @@ import React from "react";
 import { BsBellFill, BsJustifyRight } from "react-icons/bs";
 import { FaEye } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { useAuth } from "./AuthContext";
 
 const TopNavigation = ({ open, setOpen }) => {
+  const { user } = useAuth();
   const session = JSON.parse(sessionStorage.getItem("session"));
   const last_conection = dayjs().format("DD/MM • HH:mm");
   return (
@@ -20,13 +22,26 @@ const TopNavigation = ({ open, setOpen }) => {
             </span>
           </div>
           <div className="hidden lg:flex justify-end self-start">
-            <Link
-              target="_blank"
-              to={"/"}
-              className="p-2 h-max rounded text-sm flex items-center gap-2 bg-dark-purple text-white whitespace-nowrap"
-            >
-              <FaEye /> Ver Sitio
-            </Link>
+            {Number(user.rol) === 1 ? (
+              "superadministrador"
+            ) : Number(user.rol) === 2 ? (
+              <Link
+                target="_blank"
+                to={"/"}
+                className="p-2 h-max rounded text-sm flex items-center gap-2 bg-dark-purple text-white whitespace-nowrap"
+              >
+                <FaEye /> Ver Sitio
+              </Link>
+            ) : (
+              <Link
+                target="_blank"
+                to={`/asesor/${user.id}`}
+                className="p-2 h-max rounded text-sm flex items-center gap-2 bg-dark-purple text-white whitespace-nowrap"
+              >
+                <FaEye /> Ver Sitio
+              </Link>
+            )}
+
             <div className="self-center">
               <div className="cursor-pointer counter-icon relative">
                 <div className="rounded-full bg-dark-purple text-white text-sm flex items-center justify-center w-5 h-5 text-center absolute -top-2 -right-2">
