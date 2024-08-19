@@ -2,25 +2,26 @@ import React, { useEffect, useState } from "react";
 import ListPropiedadesPage from "../components/ListPropiedadesPage";
 import axios from "axios";
 import { Select } from "antd";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useSharedData } from "../components/SharedDataContext";
 import { Helmet } from "react-helmet-async";
 const { Option } = Select;
 const Home = () => {
-  const sharedData = useSharedData();
-  console.log(sharedData);
+  const { businessId } = useParams();
+  const { webData } = useSharedData();
+  console.log(webData);
+
   const settings = {
-    color_primary:
-      sharedData.length === 0 ? "#000" : sharedData[0].color_primary,
+    color_primary: webData.length === 0 ? "#000" : webData[0]?.color_primary,
     color_secondary:
-      sharedData.length === 0 ? "#000" : sharedData[0].color_secondary,
+      webData.length === 0 ? "#000" : webData[0]?.color_secondary,
     is_capa_fondo_portada:
-      sharedData.length === 0 ? false : sharedData[0].is_capa_fondo_portada,
+      webData.length === 0 ? false : webData[0].is_capa_fondo_portada,
     color_fondo_portada:
-      sharedData.length === 0 ? "#000" : sharedData[0].color_fondo_portada,
+      webData.length === 0 ? "#000" : webData[0].color_fondo_portada,
     color_capa_fondo_portada:
-      sharedData.length === 0 ? "#000" : sharedData[0].color_capa_fondo_portada,
-    portada: sharedData.length === 0 ? "" : sharedData[0].portada,
+      webData.length === 0 ? "#000" : webData[0].color_capa_fondo_portada,
+    portada: webData.length === 0 ? "" : webData[0].portada,
   };
   const [properties, setProperties] = useState([]);
   const [minPrecio, setMinPrecio] = useState("");
@@ -34,7 +35,7 @@ const Home = () => {
   const buscarPropiedades = async () => {
     try {
       const response = await axios.get(`${apiUrl}/propiedades`);
-      console.log(response)
+
       setProperties(response.data);
     } catch (error) {
       console.error("Error al obtener las propiedades:", error);
@@ -60,7 +61,7 @@ const Home = () => {
     } else {
       urlType += type;
     }
-    let searchURL = `/busqueda/venta-de-${urlType}`;
+    let searchURL = `/${businessId}/busqueda/venta-de-${urlType}`;
     console.log(searchURL);
     if (selectedLocation !== "") {
       const [region, provincia, distrito, codigo] = selectedLocation.split("-");
@@ -111,11 +112,17 @@ const Home = () => {
       <Helmet>
         <link rel="icon" href={`${window.location.origin + "/logo3.png"}`} />
         <meta name="theme-color" content="#000" />
-        <link rel="apple-touch-icon" href={`${window.location.origin + "/logo3.png"}`} />
-      
+        <link
+          rel="apple-touch-icon"
+          href={`${window.location.origin + "/logo3.png"}`}
+        />
+
         <link rel="canonical" href="/" />
         <meta property="og:title" content="Tu vivienda" />
-        <meta property="og:image" content={`${window.location.origin + "/logo3.png"}`} />
+        <meta
+          property="og:image"
+          content={`${window.location.origin + "/logo3.png"}`}
+        />
         <meta
           name="description"
           data-rh="true"

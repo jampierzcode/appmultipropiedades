@@ -3,7 +3,6 @@ import { FaBath, FaBed, FaMapMarkerAlt, FaVectorSquare } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 const ListPropiedadesPage = ({ settings, propiedades }) => {
-  console.log(settings);
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
       {propiedades.map((prop, index) => {
@@ -24,7 +23,9 @@ const ListPropiedadesPage = ({ settings, propiedades }) => {
               </p>
             </div>
             <div className="h-[150px] md:h-[200px]">
-              <img title={`${prop.nombre}`} loading="lazy"
+              <img
+                title={`${prop.nombre}`}
+                loading="lazy"
                 src={`${prop.url_file}`}
                 className="w-full h-full object-cover object-center"
                 alt=""

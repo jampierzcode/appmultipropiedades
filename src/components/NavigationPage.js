@@ -4,30 +4,29 @@ import { FaAlignJustify } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { useSharedData } from "./SharedDataContext";
 
-const NavigationPage = () => {
-  const sharedData = useSharedData();
+const NavigationPage = ({ businessId }) => {
+  const { webData } = useSharedData();
+  console.log(webData);
 
   const settings = {
-    color_primary:
-      sharedData.length === 0 ? "#000" : sharedData[0].color_primary,
+    color_primary: webData.length === 0 ? "#000" : webData[0]?.color_primary,
     color_secondary:
-      sharedData.length === 0 ? "#000" : sharedData[0].color_secondary,
+      webData.length === 0 ? "#000" : webData[0]?.color_secondary,
     is_capa_fondo_portada:
-      sharedData.length === 0 ? false : sharedData[0].is_capa_fondo_portada,
+      webData.length === 0 ? false : webData[0].is_capa_fondo_portada,
     color_fondo_portada:
-      sharedData.length === 0 ? "#000" : sharedData[0].color_fondo_portada,
+      webData.length === 0 ? "#000" : webData[0].color_fondo_portada,
     color_capa_fondo_portada:
-      sharedData.length === 0 ? "#000" : sharedData[0].color_capa_fondo_portada,
-    portada: sharedData.length === 0 ? "" : sharedData[0].portada,
+      webData.length === 0 ? "#000" : webData[0].color_capa_fondo_portada,
+    portada: webData.length === 0 ? "" : webData[0].portada,
   };
   const [businessData, setBusinessData] = useState([]);
   const apiUrl = process.env.REACT_APP_API_URL;
   const fetchBusinessData = async () => {
     try {
       const response = await axios.get(`${apiUrl}/business`);
-      console.log(response);
+
       const data = response.data;
-      console.log(data);
 
       if (data.length === 0) {
         setBusinessData([]);
@@ -45,27 +44,27 @@ const NavigationPage = () => {
     {
       icon: "-",
       name: "Home",
-      url: "/",
+      url: `/${businessId}`,
     },
     {
       icon: "-",
       name: "Departamentos",
-      url: "/busqueda/venta-de-departamento",
+      url: `/${businessId}/busqueda/venta-de-departamento`,
     },
     {
       icon: "-",
       name: "Casas",
-      url: "/busqueda/venta-de-casa",
+      url: `/${businessId}/busqueda/venta-de-casa`,
     },
     {
       icon: "-",
       name: "Oficinas",
-      url: "/busqueda/venta-de-oficina",
+      url: `/${businessId}/busqueda/venta-de-oficina`,
     },
     {
       icon: "-",
       name: "Lotes",
-      url: "/busqueda/venta-de-lote",
+      url: `/${businessId}/busqueda/venta-de-lote`,
     },
   ];
   const [mobileMenu, setMobileMenu] = useState(false);
@@ -76,8 +75,10 @@ const NavigationPage = () => {
     <header className="shadow fixed z-40 top-0 left-0 w-full bg-white">
       <div className="flex items-center justify-between  px-5 py-3 max-w-[1350px] mx-auto">
         <div className="logo w-[70%] md:w-[25%] ">
-          <Link to={"/"}>
-            <img title={`${businessData.nombre_razon}`} loading="lazy"
+          <Link to={`/${businessId}`}>
+            <img
+              title={`${businessData.nombre_razon}`}
+              loading="lazy"
               className="w-[90%] md:w-[70%] object-contain object-left"
               src={businessData.length !== 0 ? businessData.logo : "no-logo"}
               alt=""

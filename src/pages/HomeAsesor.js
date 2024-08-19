@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Select } from "antd";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useSharedData } from "../components/SharedDataContext";
 import { Helmet } from "react-helmet-async";
 import ListPropiedadesPageAsesor from "../components/ListPropiedadesPageAsesor";
 const { Option } = Select;
 const HomeAsesor = () => {
+  const { asesorId, asesorNombre } = useParams();
   const sharedData = useSharedData();
-  console.log(sharedData);
   const settings = {
     color_primary:
       sharedData.length === 0 ? "#000" : sharedData[0].color_primary,
@@ -34,7 +34,7 @@ const HomeAsesor = () => {
   const buscarPropiedades = async () => {
     try {
       const response = await axios.get(`${apiUrl}/propiedades`);
-      console.log(response);
+
       setProperties(response.data);
     } catch (error) {
       console.error("Error al obtener las propiedades:", error);
@@ -265,6 +265,8 @@ const HomeAsesor = () => {
           <ListPropiedadesPageAsesor
             settings={settings}
             propiedades={properties}
+            asesorNombre={asesorNombre}
+            asesorId={asesorId}
           />
         </div>
       </div>

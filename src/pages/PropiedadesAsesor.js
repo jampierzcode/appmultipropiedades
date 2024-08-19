@@ -305,10 +305,16 @@ const PropiedadesAsesor = () => {
       message.error("No se elimino la propiedad, hubo un error");
     }
   };
+  const transformarTexto = (texto) => {
+    // return texto.trim().toLowerCase().replace(/\s+/g, "-");
+    return texto.trim().toLowerCase().replace(/\s+/g, "");
+  };
   const copiarVinculo = (id) => {
-    let asesorId = session.id;
+    let asesorId = session.uuid;
     let proyectoId = id;
-    let url = `http://localhost:3000/asesor/${asesorId}/proyectos/${proyectoId}`;
+    let url = `http://localhost:3000/asesor/${transformarTexto(
+      session.nombres
+    )}/${asesorId}/proyectos/${proyectoId}`;
 
     navigator.clipboard
       .writeText(url)
@@ -607,7 +613,11 @@ const PropiedadesAsesor = () => {
                                 label: (
                                   <Link
                                     target="_blank"
-                                    to={`/proyectos/${propiedad.id}`}
+                                    to={`/asesor/${transformarTexto(
+                                      session.nombres
+                                    )}/${session.uuid}/proyectos/${
+                                      propiedad.id
+                                    }`}
                                     className="pr-6 rounded flex items-center gap-2 text-sm text-gray-500"
                                   >
                                     <FaEye /> Ver Propiedad

@@ -6,7 +6,7 @@ import MapFilter from "../components/MapFilter";
 import { Select, Slider } from "antd";
 import { useSharedData } from "../components/SharedDataContext";
 const { Option } = Select;
-const SearchPage = () => {
+const SearchPageAsesor = () => {
   const sharedData = useSharedData();
 
   const settings = {
@@ -569,4 +569,4 @@ const SearchPage = () => {
   );
 };
 
-export default SearchPage;
+export default SearchPageAsesor;

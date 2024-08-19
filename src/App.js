@@ -25,6 +25,7 @@ import ProyectosAsesor from "./pages/ProyectosAsesor";
 import HomeAsesor from "./pages/HomeAsesor";
 import LayoutPagesAsesor from "./components/LayoutPagesAsesor";
 import NotFoundPage from "./pages/NotFoundPage";
+import SearchPageAsesor from "./pages/SearchPageAsesor";
 
 function App() {
   return (
@@ -32,7 +33,7 @@ function App() {
       <Router>
         <Routes>
           <Route
-            path="/home"
+            path="/:businessId"
             element={
               <LayoutPages>
                 <Home />
@@ -40,11 +41,19 @@ function App() {
             }
           />
           <Route
-            path="/busqueda/:query"
+            path="/:businessId/busqueda/:query"
             element={
               <LayoutPages>
                 <SearchPage />
               </LayoutPages>
+            }
+          />
+          <Route
+            path="/asesor/:asesorNombre/:asesorId/busqueda/:query"
+            element={
+              <LayoutPagesAsesor>
+                <SearchPageAsesor />
+              </LayoutPagesAsesor>
             }
           />
 
@@ -104,7 +113,7 @@ function App() {
             }
           />
           <Route
-            path="/asesor/:asesorId"
+            path="/asesor/:asesorNombre/:asesorId"
             element={
               <LayoutPagesAsesor>
                 <HomeAsesor />
@@ -112,7 +121,7 @@ function App() {
             }
           />
           <Route
-            path="/asesor/:asesorId/proyectos/:proyectoId"
+            path="/asesor/:asesorNombre/:asesorId/proyectos/:proyectoId"
             element={
               <LayoutPagesAsesor>
                 <ProyectosAsesor />

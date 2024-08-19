@@ -5,12 +5,12 @@ import FooterPageAsesor from "./FooterPageAsesor";
 import { useParams } from "react-router-dom";
 
 const LayoutPagesAsesor = ({ children }) => {
-  const { asesorId } = useParams();
-  console.log(asesorId);
+  const { asesorNombre, asesorId } = useParams();
+
   return (
     <SharedDataProvider>
       <div className="bg-white">
-        <NavigationPageAsesor asesorId={asesorId} />
+        <NavigationPageAsesor asesorId={asesorId} asesorNombre={asesorNombre} />
         {children}
         <FooterPageAsesor />
       </div>

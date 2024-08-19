@@ -5,29 +5,28 @@ import { IoLocation, IoMail, IoPhonePortrait } from "react-icons/io5";
 import { useSharedData } from "./SharedDataContext";
 
 const FooterPageAsesor = () => {
-  const sharedData = useSharedData();
+  const { webData } = useSharedData();
+  console.log(webData);
 
   const settings = {
-    color_primary:
-      sharedData.length === 0 ? "#000" : sharedData[0].color_primary,
+    color_primary: webData.length === 0 ? "#000" : webData[0]?.color_primary,
     color_secondary:
-      sharedData.length === 0 ? "#000" : sharedData[0].color_secondary,
+      webData.length === 0 ? "#000" : webData[0]?.color_secondary,
     is_capa_fondo_portada:
-      sharedData.length === 0 ? false : sharedData[0].is_capa_fondo_portada,
+      webData.length === 0 ? false : webData[0].is_capa_fondo_portada,
     color_fondo_portada:
-      sharedData.length === 0 ? "#000" : sharedData[0].color_fondo_portada,
+      webData.length === 0 ? "#000" : webData[0].color_fondo_portada,
     color_capa_fondo_portada:
-      sharedData.length === 0 ? "#000" : sharedData[0].color_capa_fondo_portada,
-    portada: sharedData.length === 0 ? "" : sharedData[0].portada,
+      webData.length === 0 ? "#000" : webData[0].color_capa_fondo_portada,
+    portada: webData.length === 0 ? "" : webData[0].portada,
   };
   const [businessData, setBusinessData] = useState([]);
   const apiUrl = process.env.REACT_APP_API_URL;
   const fetchBusinessData = async () => {
     try {
       const response = await axios.get(`${apiUrl}/business`);
-      console.log(response);
+
       const data = response.data;
-      console.log(data);
 
       if (data.length === 0) {
         setBusinessData([]);
