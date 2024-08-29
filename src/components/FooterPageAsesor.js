@@ -3,9 +3,10 @@ import React, { useEffect, useState } from "react";
 import { FaFacebook, FaTwitter, FaWhatsapp } from "react-icons/fa";
 import { IoLocation, IoMail, IoPhonePortrait } from "react-icons/io5";
 import { useSharedData } from "./SharedDataContext";
+import { useSharedDataAsesor } from "./SharedDataContextAsesor";
 
 const FooterPageAsesor = () => {
-  const { webData } = useSharedData();
+  const { webData, business } = useSharedDataAsesor();
   console.log(webData);
 
   const settings = {
@@ -22,24 +23,10 @@ const FooterPageAsesor = () => {
   };
   const [businessData, setBusinessData] = useState([]);
   const apiUrl = process.env.REACT_APP_API_URL;
-  const fetchBusinessData = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/business`);
 
-      const data = response.data;
-
-      if (data.length === 0) {
-        setBusinessData([]);
-      } else {
-        setBusinessData(data[0]);
-      }
-    } catch (error) {
-      console.error("Error fetching business data", error);
-    }
-  };
   useEffect(() => {
-    fetchBusinessData();
-  }, [0]);
+    setBusinessData(business);
+  }, [business]);
 
   // compartir botones
   const shareOnFacebook = () => {

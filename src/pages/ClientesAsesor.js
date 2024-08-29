@@ -7,7 +7,7 @@ import axios from "axios";
 import { FaFileExcel, FaUsers } from "react-icons/fa";
 import { useAuth } from "../components/AuthContext";
 import dayjs from "dayjs";
-const Clientes = () => {
+const ClientesAsesor = () => {
   const session = JSON.parse(sessionStorage.getItem("session"));
   const apiUrl = process.env.REACT_APP_API_URL;
   const { business } = useAuth();
@@ -31,7 +31,7 @@ const Clientes = () => {
   const buscarClientes = async () => {
     try {
       const response = await axios.get(
-        `${apiUrl}/clientesbybusiness/${business.id}`,
+        `${apiUrl}/clientesbyasigned/${session.id}`,
         {
           headers: {
             Authorization: `Bearer ${session.token}`,
@@ -427,4 +427,4 @@ const Clientes = () => {
   );
 };
 
-export default Clientes;
+export default ClientesAsesor;

@@ -2,13 +2,13 @@ import React from "react";
 import { FaBath, FaBed, FaMapMarkerAlt, FaVectorSquare } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
-const ListPropiedadesPage = ({ settings, propiedades }) => {
+const ListPropiedadesPage = ({ businessId, settings, propiedades }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
       {propiedades.map((prop, index) => {
         return (
           <Link
-            to={`/proyectos/${prop.id}`}
+            to={`/${businessId}/proyectos/${prop.id}`}
             key={index}
             className="w-full overflow-hidden rounded-lg shadow-md relative border border-gray-400"
           >
@@ -69,7 +69,7 @@ const ListPropiedadesPage = ({ settings, propiedades }) => {
                 </div>
                 <button
                   onClick={() => {
-                    window.location.href = `/proyectos/${prop.id}`;
+                    window.location.href = `/${businessId}/proyectos/${prop.id}`;
                   }}
                   style={{ background: settings.color_secondary }}
                   className="whitespace-nowrap inline-block h-max p-2 rounded   text-white font-bold text-xs"

@@ -25,10 +25,21 @@ import {
 import { BsViewList } from "react-icons/bs";
 import { FiImage } from "react-icons/fi";
 import EmpresaSelect from "../components/EmpresaSelect";
+import { useAuth } from "../components/AuthContext";
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 const Propiedades = () => {
+  const { user, business } = useAuth();
+
+  const transformarTexto = (texto) => {
+    // return texto.trim().toLowerCase().replace(/\s+/g, "-");
+    return texto.trim().toLowerCase().replace(/\s+/g, "-");
+  };
+  let nombre_transform = "";
   const session = JSON.parse(sessionStorage.getItem("session"));
+  if (business !== null && session !== null) {
+    nombre_transform = transformarTexto(business.nombre_razon);
+  }
   const apiUrl = process.env.REACT_APP_API_URL;
   // console.log(apiUrl);
   const [propiedades, setPropiedades] = useState([]);
@@ -49,7 +60,7 @@ const Propiedades = () => {
     },
   ];
   //   business
-  const [business, setBusiness] = useState([]);
+  const [businessData, setBusinessData] = useState([]);
   const [businessActive, setBusinessActive] = useState("Todas");
   const buscarEmpresas = async () => {
     try {
@@ -65,14 +76,18 @@ const Propiedades = () => {
       //   setBusinessActive(response.data[0].id);
       response.data.push(todas);
       setBusinessActive(response.data[0].id);
-      setBusiness(response.data);
+      setBusinessData(response.data);
     } catch (error) {
       console.error("Error al obtener las empresas:", error);
     }
   };
   const buscarEmpresaId = (id) => {
-    const search = business.find((b) => b.id === id);
-    return search.nombre_razon;
+    if (businessData.length > 0) {
+      const search = businessData.find((b) => b.id === id);
+      return search.nombre_razon;
+    } else {
+      return "";
+    }
   };
   useEffect(() => {
     // eslint-disable-next-line
@@ -598,7 +613,9 @@ const Propiedades = () => {
                                 label: (
                                   <Link
                                     target="_blank"
-                                    to={`/proyectos/${propiedad.id}`}
+                                    to={`/${transformarTexto(
+                                      buscarEmpresaId(propiedad.empresa_id)
+                                    )}/proyectos/${propiedad.id}`}
                                     className="pr-6 rounded flex items-center gap-2 text-sm text-gray-500"
                                   >
                                     <FaEye /> Ver Propiedad

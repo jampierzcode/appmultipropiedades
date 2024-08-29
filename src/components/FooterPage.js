@@ -5,7 +5,7 @@ import { IoLocation, IoMail, IoPhonePortrait } from "react-icons/io5";
 import { useSharedData } from "./SharedDataContext";
 
 const FooterPage = () => {
-  const { webData } = useSharedData();
+  const { webData, business } = useSharedData();
   console.log(webData);
 
   const settings = {
@@ -20,26 +20,11 @@ const FooterPage = () => {
       webData.length === 0 ? "#000" : webData[0].color_capa_fondo_portada,
     portada: webData.length === 0 ? "" : webData[0].portada,
   };
-  const [businessData, setBusinessData] = useState([]);
+  const [businessData, setBusinessData] = useState(null);
   const apiUrl = process.env.REACT_APP_API_URL;
-  const fetchBusinessData = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/business`);
-
-      const data = response.data;
-
-      if (data.length === 0) {
-        setBusinessData([]);
-      } else {
-        setBusinessData(data[0]);
-      }
-    } catch (error) {
-      console.error("Error fetching business data", error);
-    }
-  };
   useEffect(() => {
-    fetchBusinessData();
-  }, [0]);
+    setBusinessData(business);
+  }, [business]);
 
   // compartir botones
   const shareOnFacebook = () => {
@@ -76,112 +61,116 @@ const FooterPage = () => {
     window.location.href = url;
   };
   return (
-    <div
-      style={{ background: settings.color_primary }}
-      className="w-full px-3 py-[40px] text-white"
-    >
-      <div className="max-w-[1180px] mx-auto w-full">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="w-full">
-            <label
-              htmlFor="visitanos"
-              className="text-sm font-bold mb-4 inline-block"
-            >
-              VISITANOS
-            </label>
-            <ul className="flex flex-col gap-2">
-              <li className="w-full flex gap-1 items-center font-medium text-sm">
-                <IoLocation /> <p>{businessData?.direccion}</p>
-              </li>
-              <li className="w-full flex gap-1 items-center font-medium text-sm">
-                <IoPhonePortrait /> <p>{businessData?.phone_contact}</p>
-              </li>
-              <li className="w-full flex gap-1 items-center font-medium text-sm">
-                <IoMail /> <p>{businessData?.email}</p>
-              </li>
-            </ul>
-          </div>
-          <div className="w-full">
-            <label
-              htmlFor="visitanos"
-              className="text-sm font-bold mb-4 inline-block"
-            >
-              COMPARTIR EN REDES SOCIALES
-            </label>
-            <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div
-                onClick={() => shareOnFacebook()}
-                className="flex bg-[#3b5998] rounded-md overflow-hidden cursor-pointer"
-              >
-                <span className="block p-3">
-                  <FaFacebook />
-                </span>
-                <div
-                  style={{
-                    backgroundImage:
-                      "linear-gradient(90deg,rgba(0,0,0,.12),transparent)",
-                  }}
-                  className="p-3 text-sm font-bold"
+    <>
+      {businessData !== null ? (
+        <div
+          style={{ background: settings.color_primary }}
+          className="w-full px-3 py-[40px] text-white"
+        >
+          <div className="max-w-[1180px] mx-auto w-full">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="w-full">
+                <label
+                  htmlFor="visitanos"
+                  className="text-sm font-bold mb-4 inline-block"
                 >
-                  Facebook
-                </div>
+                  VISITANOS
+                </label>
+                <ul className="flex flex-col gap-2">
+                  <li className="w-full flex gap-1 items-center font-medium text-sm">
+                    <IoLocation /> <p>{businessData?.direccion}</p>
+                  </li>
+                  <li className="w-full flex gap-1 items-center font-medium text-sm">
+                    <IoPhonePortrait /> <p>{businessData?.phone_contact}</p>
+                  </li>
+                  <li className="w-full flex gap-1 items-center font-medium text-sm">
+                    <IoMail /> <p>{businessData?.email}</p>
+                  </li>
+                </ul>
               </div>
-              <div
-                onClick={() => shareOnWhatsApp()}
-                className="flex bg-[#25d366] rounded-md overflow-hidden cursor-pointer"
-              >
-                <span className="block p-3">
-                  <FaWhatsapp />
-                </span>
-                <div
-                  style={{
-                    backgroundImage:
-                      "linear-gradient(90deg,rgba(0,0,0,.12),transparent)",
-                  }}
-                  className="p-3 text-sm font-bold"
+              <div className="w-full">
+                <label
+                  htmlFor="visitanos"
+                  className="text-sm font-bold mb-4 inline-block"
                 >
-                  WhatsApp
-                </div>
-              </div>
-              <div
-                onClick={() => shareOnTwitter()}
-                className="flex bg-[#1da1f2] rounded-md overflow-hidden cursor-pointer"
-              >
-                <span className="block p-3">
-                  <FaTwitter />
-                </span>
-                <div
-                  style={{
-                    backgroundImage:
-                      "linear-gradient(90deg,rgba(0,0,0,.12),transparent)",
-                  }}
-                  className="p-3 text-sm font-bold"
-                >
-                  Twiter
-                </div>
-              </div>
-              <div
-                onClick={() => shareViaEmail()}
-                className="flex bg-[#ea4335] rounded-md overflow-hidden cursor-pointer"
-              >
-                <span className="block p-3">
-                  <IoMail />
-                </span>
-                <div
-                  style={{
-                    backgroundImage:
-                      "linear-gradient(90deg,rgba(0,0,0,.12),transparent)",
-                  }}
-                  className="p-3 text-sm font-bold"
-                >
-                  Email
+                  COMPARTIR EN REDES SOCIALES
+                </label>
+                <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div
+                    onClick={() => shareOnFacebook()}
+                    className="flex bg-[#3b5998] rounded-md overflow-hidden cursor-pointer"
+                  >
+                    <span className="block p-3">
+                      <FaFacebook />
+                    </span>
+                    <div
+                      style={{
+                        backgroundImage:
+                          "linear-gradient(90deg,rgba(0,0,0,.12),transparent)",
+                      }}
+                      className="p-3 text-sm font-bold"
+                    >
+                      Facebook
+                    </div>
+                  </div>
+                  <div
+                    onClick={() => shareOnWhatsApp()}
+                    className="flex bg-[#25d366] rounded-md overflow-hidden cursor-pointer"
+                  >
+                    <span className="block p-3">
+                      <FaWhatsapp />
+                    </span>
+                    <div
+                      style={{
+                        backgroundImage:
+                          "linear-gradient(90deg,rgba(0,0,0,.12),transparent)",
+                      }}
+                      className="p-3 text-sm font-bold"
+                    >
+                      WhatsApp
+                    </div>
+                  </div>
+                  <div
+                    onClick={() => shareOnTwitter()}
+                    className="flex bg-[#1da1f2] rounded-md overflow-hidden cursor-pointer"
+                  >
+                    <span className="block p-3">
+                      <FaTwitter />
+                    </span>
+                    <div
+                      style={{
+                        backgroundImage:
+                          "linear-gradient(90deg,rgba(0,0,0,.12),transparent)",
+                      }}
+                      className="p-3 text-sm font-bold"
+                    >
+                      Twiter
+                    </div>
+                  </div>
+                  <div
+                    onClick={() => shareViaEmail()}
+                    className="flex bg-[#ea4335] rounded-md overflow-hidden cursor-pointer"
+                  >
+                    <span className="block p-3">
+                      <IoMail />
+                    </span>
+                    <div
+                      style={{
+                        backgroundImage:
+                          "linear-gradient(90deg,rgba(0,0,0,.12),transparent)",
+                      }}
+                      className="p-3 text-sm font-bold"
+                    >
+                      Email
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      ) : null}
+    </>
   );
 };
 

@@ -46,6 +46,15 @@ const Usuarios = () => {
     }
     return password;
   };
+  const generateRandomUuid = (length) => {
+    const characters = "abcdefghijklmnopqrstuvwxyz0123456789";
+    let password = "";
+    for (let i = 0; i < length; i++) {
+      const randomIndex = Math.floor(Math.random() * characters.length);
+      password += characters[randomIndex];
+    }
+    return password;
+  };
   const session = JSON.parse(sessionStorage.getItem("session"));
   const apiUrl = process.env.REACT_APP_API_URL;
 
@@ -129,10 +138,12 @@ const Usuarios = () => {
       usuarioCreate.empresa_id !== "Todas" &&
       usuarioCreate.password !== ""
     ) {
+      let uuid = generateRandomUuid(5);
       setLoadingCreateUsuarios(true);
       const newUsuario = { ...usuarioCreate };
       let fechaNew = dayjs().format("YYYY-MM-DD HH:mm:ss");
       newUsuario.fecha_created = fechaNew;
+      newUsuario.uuid = uuid;
       const userData = await createUsuario(newUsuario);
       console.log(userData);
       if (userData.message === "add") {

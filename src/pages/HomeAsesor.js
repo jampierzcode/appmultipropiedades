@@ -5,22 +5,21 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useSharedData } from "../components/SharedDataContext";
 import { Helmet } from "react-helmet-async";
 import ListPropiedadesPageAsesor from "../components/ListPropiedadesPageAsesor";
+import { useSharedDataAsesor } from "../components/SharedDataContextAsesor";
 const { Option } = Select;
 const HomeAsesor = () => {
   const { asesorId, asesorNombre } = useParams();
-  const sharedData = useSharedData();
+  const { webData, business } = useSharedDataAsesor();
   const settings = {
-    color_primary:
-      sharedData.length === 0 ? "#000" : sharedData[0].color_primary,
-    color_secondary:
-      sharedData.length === 0 ? "#000" : sharedData[0].color_secondary,
+    color_primary: webData.length === 0 ? "#000" : webData[0].color_primary,
+    color_secondary: webData.length === 0 ? "#000" : webData[0].color_secondary,
     is_capa_fondo_portada:
-      sharedData.length === 0 ? false : sharedData[0].is_capa_fondo_portada,
+      webData.length === 0 ? false : webData[0].is_capa_fondo_portada,
     color_fondo_portada:
-      sharedData.length === 0 ? "#000" : sharedData[0].color_fondo_portada,
+      webData.length === 0 ? "#000" : webData[0].color_fondo_portada,
     color_capa_fondo_portada:
-      sharedData.length === 0 ? "#000" : sharedData[0].color_capa_fondo_portada,
-    portada: sharedData.length === 0 ? "" : sharedData[0].portada,
+      webData.length === 0 ? "#000" : webData[0].color_capa_fondo_portada,
+    portada: webData.length === 0 ? "" : webData[0].portada,
   };
   const [properties, setProperties] = useState([]);
   const [minPrecio, setMinPrecio] = useState("");
@@ -33,7 +32,9 @@ const HomeAsesor = () => {
 
   const buscarPropiedades = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/propiedades`);
+      const response = await axios.get(
+        `${apiUrl}/propiedadesbybusiness/${business.id}`
+      );
 
       setProperties(response.data);
     } catch (error) {
@@ -103,8 +104,10 @@ const HomeAsesor = () => {
   };
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-    buscarPropiedades();
-  }, [0]);
+    if (business !== null) {
+      buscarPropiedades();
+    }
+  }, [business]);
 
   return (
     <>

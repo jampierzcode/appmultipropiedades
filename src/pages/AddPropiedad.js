@@ -12,10 +12,12 @@ import Modelos from "../components/Modelos";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import LogoUpload from "../components/LogoUpload";
+import { useAuth } from "../components/AuthContext";
 
 const AddPropiedad = () => {
   const navigate = useNavigate();
   const session = JSON.parse(sessionStorage.getItem("session"));
+  const { business } = useAuth();
   const mapRef = useRef();
   const [position, setPosition] = useState([40.416775, -3.70379]); // Coordenadas por defecto (Madrid)
   const [loadingCreate, setLoadingCreate] = useState(false);
@@ -185,7 +187,6 @@ const AddPropiedad = () => {
 
     fetchCoordinates();
   }, [address]);
-
 
   const handleLocate = () => {
     // Lógica para actualizar la posición basándose en la dirección proporcionada
@@ -641,6 +642,7 @@ const AddPropiedad = () => {
       created_by: session.id,
       status: statusPublicacion,
       name_reference: referencia,
+      empresa_id: business.id,
     };
     // console.log(newPropiedad);
     // console.log(selectedAmenities);
@@ -659,7 +661,7 @@ const AddPropiedad = () => {
           url_file: coverData.coverImage,
           propiedad_id: idPropiedad,
           etiqueta: "Portada",
-          indice: -1
+          indice: -1,
         };
         multimediaPropiedad.push(newMultimedia);
       }
@@ -671,7 +673,7 @@ const AddPropiedad = () => {
             url_file: file,
             propiedad_id: idPropiedad,
             etiqueta: "Galeria",
-            indice: index
+            indice: index,
           };
           multimediaPropiedad.push(newMultimedia);
         });

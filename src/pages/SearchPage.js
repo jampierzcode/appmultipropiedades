@@ -7,22 +7,19 @@ import { Select, Slider } from "antd";
 import { useSharedData } from "../components/SharedDataContext";
 const { Option } = Select;
 const SearchPage = () => {
-  const sharedData = useSharedData();
-
+  const { webData, business } = useSharedData();
   const settings = {
-    color_primary:
-      sharedData.length === 0 ? "#000" : sharedData[0].color_primary,
-    color_secondary:
-      sharedData.length === 0 ? "#000" : sharedData[0].color_secondary,
+    color_primary: webData.length === 0 ? "#000" : webData[0].color_primary,
+    color_secondary: webData.length === 0 ? "#000" : webData[0].color_secondary,
     is_capa_fondo_portada:
-      sharedData.length === 0 ? false : sharedData[0].is_capa_fondo_portada,
+      webData.length === 0 ? false : webData[0].is_capa_fondo_portada,
     color_fondo_portada:
-      sharedData.length === 0 ? "#000" : sharedData[0].color_fondo_portada,
+      webData.length === 0 ? "#000" : webData[0].color_fondo_portada,
     color_capa_fondo_portada:
-      sharedData.length === 0 ? "#000" : sharedData[0].color_capa_fondo_portada,
-    portada: sharedData.length === 0 ? "" : sharedData[0].portada,
+      webData.length === 0 ? "#000" : webData[0].color_capa_fondo_portada,
+    portada: webData.length === 0 ? "" : webData[0].portada,
   };
-  const { query } = useParams();
+  const { query, businessId } = useParams();
   const apiUrl = process.env.REACT_APP_API_URL;
   const getPurposeAndCategories = () => {
     let parts = [];
@@ -257,7 +254,9 @@ const SearchPage = () => {
 
   const buscarPropiedades = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/propiedades`);
+      const response = await axios.get(
+        `${apiUrl}/propiedadesbybusiness/${business.id}`
+      );
       setPropiedades(response.data);
     } catch (error) {
       console.error("Error al obtener las propiedades:", error);
@@ -266,8 +265,10 @@ const SearchPage = () => {
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-    buscarPropiedades();
-  }, [0]);
+    if (business !== null) {
+      buscarPropiedades();
+    }
+  }, [business]);
   const [ubicacionesMapa, setUbicacionesMapa] = useState([]);
   const applyFilters = () => {
     const filterSesgo =
@@ -483,7 +484,7 @@ const SearchPage = () => {
           {filterPropiedades.length > 0 &&
             filterPropiedades.map((prop, index) => (
               <Link
-                to={`/proyectos/${prop.id}`}
+                to={`/${businessId}/proyectos/${prop.id}`}
                 key={index}
                 className="w-full h-max overflow-hidden rounded-lg shadow relative"
               >
@@ -552,7 +553,7 @@ const SearchPage = () => {
                     </div>
                     <button
                       onClick={() => {
-                        window.location.href = `/proyectos/${prop.id}`;
+                        window.location.href = `/${businessId}/proyectos/${prop.id}`;
                       }}
                       style={{ background: settings.color_secondary }}
                       className="whitespace-nowrap inline-block h-max mt-4 p-2 rounded   text-white font-bold text-xs"

@@ -26,6 +26,7 @@ import HomeAsesor from "./pages/HomeAsesor";
 import LayoutPagesAsesor from "./components/LayoutPagesAsesor";
 import NotFoundPage from "./pages/NotFoundPage";
 import SearchPageAsesor from "./pages/SearchPageAsesor";
+import ClientesAsesor from "./pages/ClientesAsesor";
 
 function App() {
   return (
@@ -105,7 +106,7 @@ function App() {
             }
           />
           <Route
-            path="/proyectos/:query"
+            path="/:businessId/proyectos/:query"
             element={
               <LayoutPages>
                 <ProyectosPage />
@@ -129,6 +130,7 @@ function App() {
             }
           />
           <Route path="*" element={<NotFoundPage />} />
+          <Route path="/404" element={<NotFoundPage />} />
           <Route path="/login" element={<Login />} />
 
           <Route
@@ -168,7 +170,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Layout>
-                  <Clientes />
+                  <AccesRoute
+                    path="/propiedades"
+                    roles={["admin", "asesor"]}
+                    components={{
+                      admin: Clientes,
+                      asesor: ClientesAsesor,
+                    }}
+                  />
                 </Layout>
               </ProtectedRoute>
             }

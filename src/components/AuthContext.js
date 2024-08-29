@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
-  const fetchBusinessData = async () => {
+  const fetchBusinessAuth = async () => {
     try {
       const response = await axios.get(`${apiUrl}/businessbyuser/${user.id}`);
       const data = response.data;
@@ -33,7 +33,9 @@ export const AuthProvider = ({ children }) => {
       if (data.length !== 0) {
         const business = data[0];
         const infoBusiness = {
+          id: business.id || "",
           logo: business.logo || "",
+          slug: business.slug || "",
           user_id: business.user_id || "",
           nombre_razon: business.nombre_razon || "",
           website: business.website || "",
@@ -49,12 +51,14 @@ export const AuthProvider = ({ children }) => {
   };
   useEffect(() => {
     if (user !== null) {
-      fetchBusinessData();
+      fetchBusinessAuth();
     }
   }, [user]);
 
   return (
-    <AuthContext.Provider value={{ user, business, login, logout }}>
+    <AuthContext.Provider
+      value={{ user, business, fetchBusinessAuth, login, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

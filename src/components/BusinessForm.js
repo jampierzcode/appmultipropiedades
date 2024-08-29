@@ -3,15 +3,18 @@ import axios from "axios";
 import LogoUpload from "./LogoUpload";
 import InputField from "./InputField";
 import { message } from "antd";
+import { useAuth } from "./AuthContext";
 
 const BusinessForm = () => {
   // estados funcionales
 
   const session = JSON.parse(sessionStorage.getItem("session"));
   const apiUrl = process.env.REACT_APP_API_URL;
+  const { fetchBusinessAuth } = useAuth();
   const [businessData, setBusinessData] = useState({
     user_id: "",
     logo: "",
+    slug: "",
     nombre_razon: "",
     website: "",
     direccion: "",
@@ -30,14 +33,17 @@ const BusinessForm = () => {
         `${apiUrl}/businessbyuser/${session.id}`
       );
       const data = response.data;
+      console.log(data);
 
       if (data.length === 0) {
         setInitialData(businessData);
       } else {
         const business = data[0];
         const infoBusiness = {
+          id: business.id || "",
           logo: business.logo || "",
           user_id: business.user_id || "",
+          slug: business.slug || "",
           nombre_razon: business.nombre_razon || "",
           website: business.website || "",
           direccion: business.direccion || "",
@@ -51,13 +57,26 @@ const BusinessForm = () => {
       console.error("Error fetching business data", error);
     }
   };
+  const transformarTexto = (texto) => {
+    // return texto.trim().toLowerCase().replace(/\s+/g, "-");
+    return texto.trim().toLowerCase().replace(/\s+/g, "-");
+  };
 
   const handleChange = (e) => {
     const { id, value } = e.target;
-    setBusinessData((prevState) => ({
-      ...prevState,
-      [id]: value,
-    }));
+    if (id === "nombre_razon") {
+      const slugNew = transformarTexto(value);
+      setBusinessData((prevState) => ({
+        ...prevState,
+        [id]: value,
+        ["slug"]: slugNew,
+      }));
+    } else {
+      setBusinessData((prevState) => ({
+        ...prevState,
+        [id]: value,
+      }));
+    }
   };
 
   const handleCancel = () => {
@@ -68,6 +87,7 @@ const BusinessForm = () => {
     return (
       data.user_id === "" &&
       data.logo === "" &&
+      data.slug === "" &&
       data.nombre_razon === "" &&
       data.website === "" &&
       data.phone_contact === "" &&
@@ -149,6 +169,7 @@ const BusinessForm = () => {
               ...prevState,
               logo: imageUrl,
               user_id: session.id,
+              id: response.id,
             }));
             setInitialData(businessData);
             setLogoFile("");
@@ -163,10 +184,11 @@ const BusinessForm = () => {
           });
           if (response.message === "add") {
             message.success("Se registro correctamente tus datos");
-            createBusinessData((prevState) => ({
+            setBusinessData((prevState) => ({
               ...prevState,
               logo: "",
               user_id: session.id,
+              id: response.id,
             }));
             setInitialData(businessData);
           } else {
@@ -194,7 +216,7 @@ const BusinessForm = () => {
           // Logo changed
           if (initialData.logo !== "") {
             const delete_logo = await deleteLogo(initialData.logo);
-            console.log(delete_logo)
+            console.log(delete_logo);
           }
           const imageUrl = await uploadLogo(logoFile);
           const response = await updateBusinessData({
@@ -220,6 +242,7 @@ const BusinessForm = () => {
           }
         }
       }
+      fetchBusinessAuth();
     } catch (error) {
       console.error("Error saving business data", error);
       message.error("Failed to save business information");

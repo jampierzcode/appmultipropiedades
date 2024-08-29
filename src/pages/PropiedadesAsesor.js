@@ -62,6 +62,7 @@ const PropiedadesAsesor = () => {
           },
         }
       );
+      console.log(response);
       let todas = { id: "Todas", nombre_razon: "Todas" };
       //   setBusinessActive(response.data[0].id);
       response.data.push(todas);
@@ -72,8 +73,12 @@ const PropiedadesAsesor = () => {
     }
   };
   const buscarEmpresaId = (id) => {
-    const search = business.find((b) => b.id === id);
-    return search.nombre_razon;
+    if (business.length > 0) {
+      const search = business.find((b) => b.id === id);
+      return search.nombre_razon;
+    } else {
+      return "";
+    }
   };
   useEffect(() => {
     // eslint-disable-next-line
@@ -307,10 +312,10 @@ const PropiedadesAsesor = () => {
   };
   const transformarTexto = (texto) => {
     // return texto.trim().toLowerCase().replace(/\s+/g, "-");
-    return texto.trim().toLowerCase().replace(/\s+/g, "");
+    return texto.trim().toLowerCase().replace(/\s+/g, "-");
   };
   const copiarVinculo = (id) => {
-    let asesorId = session.uuid;
+    let asesorId = session.id;
     let proyectoId = id;
     let url = `http://localhost:3000/asesor/${transformarTexto(
       session.nombres
@@ -615,9 +620,7 @@ const PropiedadesAsesor = () => {
                                     target="_blank"
                                     to={`/asesor/${transformarTexto(
                                       session.nombres
-                                    )}/${session.uuid}/proyectos/${
-                                      propiedad.id
-                                    }`}
+                                    )}/${session.id}/proyectos/${propiedad.id}`}
                                     className="pr-6 rounded flex items-center gap-2 text-sm text-gray-500"
                                   >
                                     <FaEye /> Ver Propiedad

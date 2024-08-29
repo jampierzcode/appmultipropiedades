@@ -22,20 +22,18 @@ import { FaPhoneAlt, FaWhatsapp } from "react-icons/fa";
 import { Helmet } from "react-helmet-async";
 
 const ProyectosPage = () => {
-  const sharedData = useSharedData();
-
+  const { webData, business } = useSharedData();
+  const { businessId } = useParams();
   const settings = {
-    color_primary:
-      sharedData.length === 0 ? "#000" : sharedData[0].color_primary,
-    color_secondary:
-      sharedData.length === 0 ? "#000" : sharedData[0].color_secondary,
+    color_primary: webData.length === 0 ? "#000" : webData[0].color_primary,
+    color_secondary: webData.length === 0 ? "#000" : webData[0].color_secondary,
     is_capa_fondo_portada:
-      sharedData.length === 0 ? false : sharedData[0].is_capa_fondo_portada,
+      webData.length === 0 ? false : webData[0].is_capa_fondo_portada,
     color_fondo_portada:
-      sharedData.length === 0 ? "#000" : sharedData[0].color_fondo_portada,
+      webData.length === 0 ? "#000" : webData[0].color_fondo_portada,
     color_capa_fondo_portada:
-      sharedData.length === 0 ? "#000" : sharedData[0].color_capa_fondo_portada,
-    portada: sharedData.length === 0 ? "" : sharedData[0].portada,
+      webData.length === 0 ? "#000" : webData[0].color_capa_fondo_portada,
+    portada: webData.length === 0 ? "" : webData[0].portada,
   };
   const mapRef = useRef();
   const apiUrl = process.env.REACT_APP_API_URL;
@@ -46,15 +44,19 @@ const ProyectosPage = () => {
   const [propiedad, setPropiedad] = useState(null);
   const buscarPropiedades = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/propiedades`);
+      const response = await axios.get(
+        `${apiUrl}/propiedadesbybusiness/${business.id}`
+      );
       setProperties(response.data);
     } catch (error) {
       console.error("Error al obtener las propiedades:", error);
     }
   };
   useEffect(() => {
-    buscarPropiedades();
-  }, [0]);
+    if (business !== null) {
+      buscarPropiedades();
+    }
+  }, [business]);
   const position = propiedad ? JSON.parse(propiedad.position_locate) : [0, 0];
 
   useEffect(() => {
@@ -101,16 +103,10 @@ const ProyectosPage = () => {
       setDataCliente({ ...cliente, mensaje: "" });
     }
   };
+  useEffect(() => {
+    setBusinessData(business);
+  }, [business]);
 
-  const fetchBusinessData = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/business`);
-      const data = response.data;
-      setBusinessData(data.length > 0 ? data[0] : []);
-    } catch (error) {
-      console.error("Error fetching business data", error);
-    }
-  };
   const [bolSearch, setBolSearch] = useState(true);
 
   const fetchPropiedadesById = async () => {
@@ -149,7 +145,6 @@ const ProyectosPage = () => {
     fetchAmenidades();
     fetchModelos();
     fetchClienteStorage();
-    fetchBusinessData();
     fetchPropiedadesById();
     fetchGalleryByPropiedadId();
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -201,12 +196,13 @@ const ProyectosPage = () => {
     if (verificarDataCliente(dataCliente)) {
       const appOrigin = window.location.origin;
       if (method === "whatsapp") {
-        const parse_url = `https://api.whatsapp.com/send/?phone=${businessData.phone_contact}&text=Hola+estoy+interesado+en+el+proyecto+${propiedad.nombre}+${appOrigin}/proyectos/${query}+Mi+consulta+es%3A+${dataCliente.mensaje}&type=phone_number&app_absent=0`;
+        const parse_url = `https://api.whatsapp.com/send/?phone=${businessData.phone_contact}&text=Hola+estoy+interesado+en+el+proyecto+${propiedad.nombre}+${appOrigin}/${businessData?.slug}/proyectos/${query}+Mi+consulta+es%3A+${dataCliente.mensaje}&type=phone_number&app_absent=0`;
         try {
           console.log(dataCliente);
           const send = await sendDataCliente({
             ...dataCliente,
             propiedad_id: query,
+            empresa_id: business.id,
             fecha_created: dayjs().format("YYYY-MM-DD HH:mm:ss"),
           });
           console.log(send);
@@ -932,6 +928,7 @@ const ProyectosPage = () => {
                     </h1>
                     {properties.length > 0 ? (
                       <ListPropiedadesPage
+                        businessId={businessId}
                         settings={settings}
                         propiedades={properties}
                       />

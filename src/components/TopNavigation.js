@@ -7,17 +7,19 @@ import { useAuth } from "./AuthContext";
 
 const TopNavigation = ({ open, setOpen }) => {
   const { user, business } = useAuth();
-  console.log(business);
+
   const transformarTexto = (texto) => {
     // return texto.trim().toLowerCase().replace(/\s+/g, "-");
     return texto.trim().toLowerCase().replace(/\s+/g, "-");
   };
   let nombre_transform = "";
-  if (business !== null) {
+  let nombre_asesor = "";
+  const session = JSON.parse(sessionStorage.getItem("session"));
+  if (business !== null && session !== null) {
     nombre_transform = transformarTexto(business.nombre_razon);
+    nombre_asesor = transformarTexto(session.nombres);
   }
 
-  const session = JSON.parse(sessionStorage.getItem("session"));
   const last_conection = dayjs().format("DD/MM • HH:mm");
   return (
     <>
@@ -37,7 +39,7 @@ const TopNavigation = ({ open, setOpen }) => {
             ) : Number(user.rol) === 2 ? (
               <Link
                 target="_blank"
-                to={`/${nombre_transform}`}
+                to={`/${business?.slug}`}
                 className="p-2 h-max rounded text-sm flex items-center gap-2 bg-dark-purple text-white whitespace-nowrap"
               >
                 <FaEye /> Ver Sitio
@@ -45,7 +47,7 @@ const TopNavigation = ({ open, setOpen }) => {
             ) : (
               <Link
                 target="_blank"
-                to={`/asesor/${user.id}`}
+                to={`/asesor/${nombre_asesor}/${user.id}`}
                 className="p-2 h-max rounded text-sm flex items-center gap-2 bg-dark-purple text-white whitespace-nowrap"
               >
                 <FaEye /> Ver Sitio

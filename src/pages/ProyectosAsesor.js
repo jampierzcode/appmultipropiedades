@@ -12,49 +12,39 @@ import "swiper/css/thumbs";
 // import required modules
 import { FreeMode, Navigation, Thumbs } from "swiper/modules";
 
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import { message } from "antd";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import ListPropiedadesPage from "../components/ListPropiedadesPage";
-import { useSharedData } from "../components/SharedDataContext";
+
 import { FaPhoneAlt, FaWhatsapp } from "react-icons/fa";
 import { Helmet } from "react-helmet-async";
+import { useSharedDataAsesor } from "../components/SharedDataContextAsesor";
+import ListPropiedadesPageAsesor from "../components/ListPropiedadesPageAsesor";
 
 const ProyectosAsesor = () => {
-  const sharedData = useSharedData();
-
+  const { webData, business, dataUser } = useSharedDataAsesor();
+  const navigate = useNavigate();
   const settings = {
-    color_primary:
-      sharedData.length === 0 ? "#000" : sharedData[0].color_primary,
-    color_secondary:
-      sharedData.length === 0 ? "#000" : sharedData[0].color_secondary,
+    color_primary: webData.length === 0 ? "#000" : webData[0].color_primary,
+    color_secondary: webData.length === 0 ? "#000" : webData[0].color_secondary,
     is_capa_fondo_portada:
-      sharedData.length === 0 ? false : sharedData[0].is_capa_fondo_portada,
+      webData.length === 0 ? false : webData[0].is_capa_fondo_portada,
     color_fondo_portada:
-      sharedData.length === 0 ? "#000" : sharedData[0].color_fondo_portada,
+      webData.length === 0 ? "#000" : webData[0].color_fondo_portada,
     color_capa_fondo_portada:
-      sharedData.length === 0 ? "#000" : sharedData[0].color_capa_fondo_portada,
-    portada: sharedData.length === 0 ? "" : sharedData[0].portada,
+      webData.length === 0 ? "#000" : webData[0].color_capa_fondo_portada,
+    portada: webData.length === 0 ? "" : webData[0].portada,
   };
   const mapRef = useRef();
   const apiUrl = process.env.REACT_APP_API_URL;
   const [properties, setProperties] = useState([]);
   const [imagesGallery, setImagesGallery] = useState([]);
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
-  const { asesorId, proyectoId } = useParams();
+  const { asesorId, asesorNombre, proyectoId } = useParams();
   const [propiedad, setPropiedad] = useState(null);
-  const buscarPropiedades = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/propiedades`);
-      setProperties(response.data);
-    } catch (error) {
-      console.error("Error al obtener las propiedades:", error);
-    }
-  };
-  useEffect(() => {
-    buscarPropiedades();
-  }, [0]);
+
   const position = propiedad ? JSON.parse(propiedad.position_locate) : [0, 0];
 
   useEffect(() => {
@@ -104,15 +94,15 @@ const ProyectosAsesor = () => {
     }
   };
 
-  const fetchBusinessData = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/business`);
-      const data = response.data;
-      setBusinessData(data.length > 0 ? data[0] : []);
-    } catch (error) {
-      console.error("Error fetching business data", error);
-    }
-  };
+  // const fetchBusinessData = async () => {
+  //   try {
+  //     const response = await axios.get(`${apiUrl}/business`);
+  //     const data = response.data;
+  //     setBusinessData(data.length > 0 ? data[0] : []);
+  //   } catch (error) {
+  //     console.error("Error fetching business data", error);
+  //   }
+  // };
 
   const fetchPropiedadesById = async () => {
     try {
@@ -120,7 +110,10 @@ const ProyectosAsesor = () => {
       console.log(response.data);
       setPropiedad(response.data);
       handleCliente(
-        "Me gustaría recibir más información de " + response.data.nombre,
+        "Hola " +
+          dataUser?.nombres +
+          " me gustaría recibir más información de " +
+          response.data.nombre,
         "mensaje"
       );
     } catch (error) {
@@ -139,16 +132,38 @@ const ProyectosAsesor = () => {
       console.error("Error fetching gallery data", error);
     }
   };
-
   useEffect(() => {
-    fetchAmenidades();
-    fetchModelos();
-    fetchClienteStorage();
-    fetchBusinessData();
-    fetchPropiedadesById();
-    fetchGalleryByPropiedadId();
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [proyectoId]);
+    const buscarPropiedades = async () => {
+      try {
+        const response = await axios.get(
+          `${apiUrl}/propiedadesbybusiness/${business.id}`
+        );
+        console.log(response);
+        const propiedadesEmpresa = response.data;
+        // Filtrar para ver si alguna propiedad coincide con el `proyectoId`
+        const propiedadValida = propiedadesEmpresa.some(
+          (propiedad) => parseInt(propiedad.id) === parseInt(proyectoId)
+        );
+        console.log(propiedadValida);
+        if (propiedadValida) {
+          setProperties(propiedadesEmpresa);
+          fetchAmenidades();
+          fetchModelos();
+          fetchClienteStorage();
+          fetchPropiedadesById();
+          fetchGalleryByPropiedadId();
+          // Puedes continuar con otras lógicas aquí si la propiedad es válida
+        } else {
+          navigate("/404");
+        }
+      } catch (error) {
+        console.error("Error al obtener las propiedades:", error);
+      }
+    };
+    if (business !== null) {
+      buscarPropiedades();
+    }
+  }, [business]);
 
   const handleCliente = (valor, etiqueta) => {
     setDataCliente((prevData) => ({ ...prevData, [etiqueta]: valor }));
@@ -175,6 +190,21 @@ const ProyectosAsesor = () => {
       return error;
     }
   };
+  const sendAsignedCliente = async (newAsigned) => {
+    try {
+      const response = await axios.post(
+        `${apiUrl}/clientesasigned`,
+        newAsigned,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Upload error:", error);
+      return error;
+    }
+  };
   function obtenerCodigoVideo(url) {
     console.log(url);
     const match = url.match(
@@ -185,7 +215,10 @@ const ProyectosAsesor = () => {
 
     return videosrc;
   }
-
+  const transformarTexto = (texto) => {
+    // return texto.trim().toLowerCase().replace(/\s+/g, "-");
+    return texto.trim().toLowerCase().replace(/\s+/g, "-");
+  };
   // Función para construir la URL de embed
   function construirURLDeEmbed(codigoVideo) {
     return `https://www.youtube.com/embed/${codigoVideo}`;
@@ -196,23 +229,44 @@ const ProyectosAsesor = () => {
     if (verificarDataCliente(dataCliente)) {
       const appOrigin = window.location.origin;
       if (method === "whatsapp") {
-        const parse_url = `https://api.whatsapp.com/send/?phone=${businessData.phone_contact}&text=Hola+estoy+interesado+en+el+proyecto+${propiedad.nombre}+${appOrigin}/proyectos/${proyectoId}+Mi+consulta+es%3A+${dataCliente.mensaje}&type=phone_number&app_absent=0`;
+        const parse_url = `https://api.whatsapp.com/send/?phone=${
+          business?.phone_contact
+        }&text=Hola+estoy+interesado+en+el+proyecto+${
+          propiedad.nombre
+        }+${appOrigin}/asesor/${transformarTexto(
+          dataUser?.nombres
+        )}/${asesorId}/proyectos/${proyectoId}+Mi+consulta+es%3A+${
+          dataCliente.mensaje
+        }&type=phone_number&app_absent=0`;
         try {
           console.log(dataCliente);
           const send = await sendDataCliente({
             ...dataCliente,
             propiedad_id: proyectoId,
+            empresa_id: business.id,
             fecha_created: dayjs().format("YYYY-MM-DD HH:mm:ss"),
           });
           console.log(send);
           if (send.message === "add") {
-            message.success("Se enviaron los datos correctamente");
-            sessionStorage.setItem("cliente", JSON.stringify(dataCliente));
-            const link = document.createElement("a");
-            link.href = parse_url;
-            link.target = "_blank";
-            link.rel = "noopener noreferrer";
-            link.click();
+            const newFechaNow = dayjs().format("YYYY-MM-DD HH:mm:ss");
+            const sendAsigned = await sendAsignedCliente({
+              cliente_id: send.id,
+              user_id: asesorId,
+              fecha_asigned: newFechaNow,
+            });
+            if (sendAsigned.message === "add") {
+              message.success("Se enviaron los datos correctamente");
+              sessionStorage.setItem("cliente", JSON.stringify(dataCliente));
+              const link = document.createElement("a");
+              link.href = parse_url;
+              link.target = "_blank";
+              link.rel = "noopener noreferrer";
+              link.click();
+            } else {
+              message.error(
+                "Ocurrió algo inesperado, vuelva a intentarlo de nuevo"
+              );
+            }
           } else {
             message.error(
               "Ocurrió algo inesperado, vuelva a intentarlo de nuevo"
@@ -224,7 +278,7 @@ const ProyectosAsesor = () => {
       } else {
         console.log("email");
 
-        let numero = businessData?.phone_contact;
+        let numero = business?.phone_contact;
         window.location.href = `tel:${numero}`;
       }
     } else {
@@ -597,14 +651,14 @@ const ProyectosAsesor = () => {
                                       <img
                                         className="h-full"
                                         alt="logo inmobiliario"
-                                        src={businessData?.logo}
+                                        src={business?.logo}
                                       />
                                     </a>
                                   </figure>
                                 </td>
                                 <td className="px-[14px]">
                                   <div className="Project-inmobiliaria__name">
-                                    <h2>{businessData?.nombre_razon}</h2>
+                                    <h2>{business?.nombre_razon}</h2>
                                     <div className="bx-link-go">
                                       <Link
                                         className="text-sm font-bold flex gap-2"
@@ -785,8 +839,8 @@ const ProyectosAsesor = () => {
                 </div>
                 <div className="sticky top-[80px] w-full md:col-span-4 p-4 rounded border border-gray-600 h-max">
                   <h1 className="mb-4 text-lg font-bold text-bold-font">
-                    Contáctate con {businessData?.nombre_razon}, por la
-                    propiedad {propiedad.nombre}
+                    Contáctate con {dataUser?.nombres}, por la propiedad{" "}
+                    {propiedad.nombre}
                   </h1>
                   <div
                     className="form  w-full grid grid-cols-1
@@ -889,7 +943,7 @@ const ProyectosAsesor = () => {
                         className="w-full p-3 rounded-full bg-gray-200 text-bold-font text-sm mt-4 flex items-center justify-center gap-3"
                       >
                         <FaPhoneAlt className="text-xl" /> Llamar{" "}
-                        {businessData?.phone_contact}
+                        {dataUser?.celular}
                       </button>
                     </div>
                   </div>
@@ -907,7 +961,9 @@ const ProyectosAsesor = () => {
                   Otros proyectos que podrian interesarte
                 </h1>
                 {properties.length > 0 ? (
-                  <ListPropiedadesPage
+                  <ListPropiedadesPageAsesor
+                    asesorNombre={asesorNombre}
+                    asesorId={asesorId}
                     settings={settings}
                     propiedades={properties}
                   />

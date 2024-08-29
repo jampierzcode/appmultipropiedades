@@ -8,8 +8,9 @@ import { Helmet } from "react-helmet-async";
 const { Option } = Select;
 const Home = () => {
   const { businessId } = useParams();
-  const { webData } = useSharedData();
+  const { webData, business } = useSharedData();
   console.log(webData);
+  console.log(business);
 
   const settings = {
     color_primary: webData.length === 0 ? "#000" : webData[0]?.color_primary,
@@ -34,7 +35,10 @@ const Home = () => {
 
   const buscarPropiedades = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/propiedades`);
+      const response = await axios.get(
+        `${apiUrl}/propiedadesbybusiness/${business.id}`
+      );
+      console.log(response);
 
       setProperties(response.data);
     } catch (error) {
@@ -104,8 +108,10 @@ const Home = () => {
   };
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-    buscarPropiedades();
-  }, [0]);
+    if (business !== null) {
+      buscarPropiedades();
+    }
+  }, [business]);
 
   return (
     <>
@@ -263,7 +269,11 @@ const Home = () => {
           >
             Propiedades Destacadas
           </h1>
-          <ListPropiedadesPage settings={settings} propiedades={properties} />
+          <ListPropiedadesPage
+            businessId={businessId}
+            settings={settings}
+            propiedades={properties}
+          />
         </div>
       </div>
     </>
